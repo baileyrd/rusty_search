@@ -5,6 +5,10 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
 
 ## [Unreleased]
 ### Added
+- README "Planned backends" list under Status: candidate engines being
+  considered for future adapter crates (Typesense, Quickwit, Manticore
+  Search, Redis/RediSearch, SQLite FTS5, a managed enterprise search SaaS,
+  and vector/hybrid search as a longer-term stretch). (#13)
 - CI workflow (`.github/workflows/ci-rust.yml`): `cargo fmt --check`,
   `cargo clippy --all-targets --all-features -- -D warnings`, and
   `cargo test --all-features` on every PR and push to `main`. (#12)
