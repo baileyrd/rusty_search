@@ -39,7 +39,8 @@ async fn main() -> rusty_search::Result<()> {
 | [`rusty-search-core`](crates/rusty-search-core) | The standard vocabulary: `Document`, `Schema`, `Query`, `SearchRequest`/`SearchResults`, and the `SearchBackend` trait. No concrete engine - depend on this alone to write backend-agnostic application code or your own backend. |
 | [`rusty-search-memory`](crates/rusty-search-memory) | A dependency-free, in-memory `SearchBackend`. No external engine, `O(documents)` per search - the search equivalent of pointing SQLAlchemy at SQLite. Ideal for tests. |
 | [`rusty-search-tantivy`](crates/rusty-search-tantivy) | A `SearchBackend` backed by [Tantivy](https://github.com/quickwit-oss/tantivy), an embedded, real inverted-index full-text search engine. Runs in-process (`TantivyBackend::in_memory()`) or persists to disk (`TantivyBackend::on_disk(dir)`). |
-| [`rusty-search`](crates/rusty-search) | The facade crate applications depend on. Re-exports `rusty-search-core` plus each backend behind a feature flag (`memory`, `tantivy`), mirroring how `sqlx` gates its database drivers. |
+| [`rusty-search-elasticsearch`](crates/rusty-search-elasticsearch) | A `SearchBackend` that talks to a remote Elasticsearch/OpenSearch cluster over HTTP. The only backend here that isn't in-process - see its module docs for what that changes. |
+| [`rusty-search`](crates/rusty-search) | The facade crate applications depend on. Re-exports `rusty-search-core` plus each backend behind a feature flag (`memory`, `tantivy`, `elasticsearch`), mirroring how `sqlx` gates its database drivers. |
 
 ## Why a trait, not a struct
 
@@ -60,15 +61,16 @@ pub trait SearchBackend: Send + Sync {
 ```
 
 That means application code can hold an `Arc<dyn SearchBackend>` and swap
-the concrete engine at runtime - in-memory in tests, Tantivy (or your own
-Elasticsearch/Meilisearch/OpenSearch client) in production - exactly as
-you'd swap a SQLAlchemy engine's connection string. See
+the concrete engine at runtime - in-memory in tests, Tantivy or
+Elasticsearch in production - exactly as you'd swap a SQLAlchemy engine's
+connection string. See
 [`crates/rusty-search/examples/pluggable_backends.rs`](crates/rusty-search/examples/pluggable_backends.rs)
 for a runnable demo that indexes and searches the *same* documents through
-both backends with identical calling code:
+each backend with identical calling code:
 
 ```sh
 cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
+# add `,elasticsearch` and set RUSTY_SEARCH_ES_URL to also run it against a real cluster
 ```
 
 ## The query DSL
@@ -93,17 +95,17 @@ in-memory map, an Elasticsearch query DSL body, ...).
 
 Implement `SearchBackend` for your own type and it plugs into any
 application written against the trait - no changes to `rusty-search-core`
-or to callers required. A backend for a remote engine (Elasticsearch,
-Meilisearch, OpenSearch) is a natural next step; it just needs to translate
-`Query`/`Schema` into that engine's HTTP API instead of Tantivy's in-process
-one.
+or to callers required. `rusty-search-elasticsearch` is the reference
+example of a remote/HTTP backend, if you're building one for Meilisearch,
+OpenSearch, or something else entirely.
 
 ## Status
 
-This crate is a young, from-scratch project. The core interface and two
-backends (in-memory, Tantivy) are implemented and tested; see each crate's
-module-level docs for known limitations (e.g. `rusty-search-tantivy`'s
-sort support). Contributions adding backends for other engines are welcome.
+This crate is a young, from-scratch project. The core interface and three
+backends (in-memory, Tantivy, Elasticsearch) are implemented and tested;
+see each crate's module-level docs for known limitations (e.g.
+`rusty-search-tantivy`'s sort support). Contributions adding backends for
+other engines are welcome.
 
 ## Project docs
 

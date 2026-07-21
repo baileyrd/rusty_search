@@ -29,11 +29,12 @@
 //! ```
 //!
 //! Enable the `memory` feature for the dependency-free [`MemoryBackend`]
-//! (a great default for tests), and/or the `tantivy` feature for the
-//! embedded, real full-text-search [`TantivyBackend`]. Neither is enabled
-//! by default so that depending on `rusty-search-core` alone - to define
-//! your own backend, or to write backend-agnostic application code - pulls
-//! in nothing else.
+//! (a great default for tests), the `tantivy` feature for the embedded,
+//! real full-text-search [`TantivyBackend`], and/or the `elasticsearch`
+//! feature for [`ElasticsearchBackend`], a thin HTTP client for a remote
+//! Elasticsearch/OpenSearch cluster. None are enabled by default so that
+//! depending on `rusty-search-core` alone - to define your own backend, or
+//! to write backend-agnostic application code - pulls in nothing else.
 
 pub use rusty_search_core::*;
 
@@ -42,3 +43,6 @@ pub use rusty_search_memory::MemoryBackend;
 
 #[cfg(feature = "tantivy")]
 pub use rusty_search_tantivy::TantivyBackend;
+
+#[cfg(feature = "elasticsearch")]
+pub use rusty_search_elasticsearch::ElasticsearchBackend;

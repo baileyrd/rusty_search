@@ -1,10 +1,16 @@
 //! Demonstrates the whole point of `rusty_search`: application code is
 //! written once against `Arc<dyn SearchBackend>`, and the concrete engine
-//! underneath - an in-memory index here, an embedded Tantivy index there -
-//! is swapped without changing a single line of `run_demo`.
+//! underneath - an in-memory index here, an embedded Tantivy index there, a
+//! remote Elasticsearch cluster over there - is swapped without changing a
+//! single line of `run_demo`.
 //!
 //! Run with:
 //!   cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
+//!
+//! Add `,elasticsearch` to `--features` and set `RUSTY_SEARCH_ES_URL` (e.g.
+//! `http://localhost:9200`) to also run the demo against a real cluster;
+//! without that env var the Elasticsearch leg is skipped rather than
+//! failing, since it needs infrastructure the other two backends don't.
 
 use std::sync::Arc;
 
@@ -93,6 +99,15 @@ async fn main() -> rusty_search::Result<()> {
         "TantivyBackend",
     )
     .await?;
+
+    #[cfg(feature = "elasticsearch")]
+    match std::env::var("RUSTY_SEARCH_ES_URL") {
+        Ok(url) => {
+            run_demo(Arc::new(rusty_search::ElasticsearchBackend::new(url)), "ElasticsearchBackend")
+                .await?
+        }
+        Err(_) => println!("--- ElasticsearchBackend --- skipped (set RUSTY_SEARCH_ES_URL to run against a real cluster)\n"),
+    }
 
     Ok(())
 }
