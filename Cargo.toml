@@ -4,6 +4,7 @@ members = [
     "crates/rusty-search-core",
     "crates/rusty-search-memory",
     "crates/rusty-search-tantivy",
+    "crates/rusty-search-elasticsearch",
     "crates/rusty-search",
 ]
 
@@ -19,6 +20,7 @@ authors = ["rusty_search contributors"]
 rusty-search-core = { path = "crates/rusty-search-core", version = "0.1.0" }
 rusty-search-memory = { path = "crates/rusty-search-memory", version = "0.1.0" }
 rusty-search-tantivy = { path = "crates/rusty-search-tantivy", version = "0.1.0" }
+rusty-search-elasticsearch = { path = "crates/rusty-search-elasticsearch", version = "0.1.0" }
 
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }

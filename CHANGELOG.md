@@ -14,6 +14,11 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
 - Repo governance docs: PR/issue templates, CONTRIBUTING, CODE_OF_CONDUCT,
   SECURITY, ARCHITECTURE, RELEASE_NOTES. (#1)
 - ADR-0001: object-safe `SearchBackend` trait over a shared query DSL. (#3)
+- `rusty-search-elasticsearch`: a `SearchBackend` for a remote
+  Elasticsearch/OpenSearch cluster over HTTP, wired into the `rusty-search`
+  facade behind a new `elasticsearch` feature flag. (#6)
+- ADR-0002: Elasticsearch backend design (local index/field-type registry,
+  client-side id generation, genuinely non-scoring `filter` clauses). (#6)
 
 <!-- ## [0.1.0] - YYYY-MM-DD
 ### Added
