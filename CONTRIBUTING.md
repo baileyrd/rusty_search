@@ -15,6 +15,22 @@
 4. Add or update docstrings on any public surface you touched.
 5. Open a PR — pick the template that matches (feature / bug fix / docs / chore).
 
+## Local development
+This is a Cargo workspace (`rusty-search-core`, `rusty-search-memory`,
+`rusty-search-tantivy`, `rusty-search`). Before opening a PR:
+
+```sh
+cargo test --workspace --all-features   # unit tests + doctests
+cargo clippy --workspace --all-features --all-targets
+cargo fmt --all -- --check
+```
+
+Run the pluggable-backends example to sanity-check both backends end to end:
+
+```sh
+cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
+```
+
 ## Code style
 - Explicit over implicit; type hints/annotations always.
 - Flat control flow — guard clauses, early returns, avoid >3 levels of nesting.

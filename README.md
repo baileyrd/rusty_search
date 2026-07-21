@@ -105,6 +105,15 @@ backends (in-memory, Tantivy) are implemented and tested; see each crate's
 module-level docs for known limitations (e.g. `rusty-search-tantivy`'s
 sort support). Contributions adding backends for other engines are welcome.
 
+## Project docs
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries, structure, data flow, non-goals.
+- [docs/adr/](docs/adr/) — the record of individual architectural decisions and their tradeoffs.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — workflow, code style, and review expectations.
+- [CHANGELOG.md](CHANGELOG.md) / [RELEASE_NOTES.md](RELEASE_NOTES.md) — what shipped, and why; the changelog is the terse list, the release notes carry the reasoning.
+- [SECURITY.md](SECURITY.md) — how to report a vulnerability.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — expectations for participation.
+
 ## License
 
 Licensed under either of Apache License, Version 2.0 or MIT license at your
