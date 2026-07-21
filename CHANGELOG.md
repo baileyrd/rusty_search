@@ -43,6 +43,15 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
 - ADR-0006: Algolia backend design (hand-rolled HTTP, async task-waiting
   making `commit()` a no-op, single-full-text-query restriction, no
   "match everything" literal to ground `must_not` against). (#10)
+- `rusty-search-azure-search`: a `SearchBackend` for the hosted Azure AI
+  Search service, hand-rolled over `reqwest`, translating `Query` into a
+  full-Lucene-syntax `search` string plus a separate OData `$filter`,
+  wired into the `rusty-search` facade behind a new `azure-search`
+  feature flag. (#11)
+- ADR-0007: Azure AI Search backend design (hand-rolled HTTP, two
+  independent query grammars in one request, `sortable` mirroring
+  Tantivy's fast fields, synchronous writes making `commit()` a no-op for
+  a different reason than Meilisearch/Algolia's). (#11)
 
 <!-- ## [0.1.0] - YYYY-MM-DD
 ### Added

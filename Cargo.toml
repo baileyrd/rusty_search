@@ -9,6 +9,7 @@ members = [
     "crates/rusty-search-opensearch",
     "crates/rusty-search-solr",
     "crates/rusty-search-algolia",
+    "crates/rusty-search-azure-search",
     "crates/rusty-search",
 ]
 
@@ -29,6 +30,7 @@ rusty-search-meilisearch = { path = "crates/rusty-search-meilisearch", version =
 rusty-search-opensearch = { path = "crates/rusty-search-opensearch", version = "0.1.0" }
 rusty-search-solr = { path = "crates/rusty-search-solr", version = "0.1.0" }
 rusty-search-algolia = { path = "crates/rusty-search-algolia", version = "0.1.0" }
+rusty-search-azure-search = { path = "crates/rusty-search-azure-search", version = "0.1.0" }
 
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }

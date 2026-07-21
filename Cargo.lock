@@ -1644,6 +1644,7 @@ name = "rusty-search"
 version = "0.1.0"
 dependencies = [
  "rusty-search-algolia",
+ "rusty-search-azure-search",
  "rusty-search-core",
  "rusty-search-elasticsearch",
  "rusty-search-meilisearch",
@@ -1656,6 +1657,20 @@ dependencies = [
 
 [[package]]
 name = "rusty-search-algolia"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "reqwest 0.13.4",
+ "rusty-search-core",
+ "serde_json",
+ "tokio",
+ "uuid",
+ "wiremock",
+]
+
+[[package]]
+name = "rusty-search-azure-search"
 version = "0.1.0"
 dependencies = [
  "anyhow",

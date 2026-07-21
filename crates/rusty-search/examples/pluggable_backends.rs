@@ -2,21 +2,23 @@
 //! written once against `Arc<dyn SearchBackend>`, and the concrete engine
 //! underneath - an in-memory index here, an embedded Tantivy index there, a
 //! remote Elasticsearch, OpenSearch, Meilisearch, or Solr cluster, or a
-//! hosted Algolia application over there - is swapped without changing a
-//! single line of `run_demo`.
+//! hosted Algolia or Azure AI Search application over there - is swapped
+//! without changing a single line of `run_demo`.
 //!
 //! Run with:
 //!   cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
 //!
-//! Add `,elasticsearch`/`,opensearch`/`,meilisearch`/`,solr`/`,algolia` to
-//! `--features` and set `RUSTY_SEARCH_ES_URL` / `RUSTY_SEARCH_OS_URL`
-//! (both e.g. `http://localhost:9200`) / `RUSTY_SEARCH_MEILI_URL` (e.g.
-//! `http://localhost:7700`) / `RUSTY_SEARCH_SOLR_URL` (e.g.
-//! `http://localhost:8983`) / `RUSTY_SEARCH_ALGOLIA_APP_ID` +
-//! `RUSTY_SEARCH_ALGOLIA_API_KEY` to also run the demo against a real
-//! cluster/application; without those env vars, those legs are skipped
-//! rather than failing, since they need infrastructure (or a hosted
-//! account) the other backends don't.
+//! Add `,elasticsearch`/`,opensearch`/`,meilisearch`/`,solr`/`,algolia`/
+//! `,azure-search` to `--features` and set `RUSTY_SEARCH_ES_URL` /
+//! `RUSTY_SEARCH_OS_URL` (both e.g. `http://localhost:9200`) /
+//! `RUSTY_SEARCH_MEILI_URL` (e.g. `http://localhost:7700`) /
+//! `RUSTY_SEARCH_SOLR_URL` (e.g. `http://localhost:8983`) /
+//! `RUSTY_SEARCH_ALGOLIA_APP_ID` + `RUSTY_SEARCH_ALGOLIA_API_KEY` /
+//! `RUSTY_SEARCH_AZURE_SEARCH_ENDPOINT` (e.g.
+//! `https://my-service.search.windows.net`) + `RUSTY_SEARCH_AZURE_SEARCH_API_KEY`
+//! to also run the demo against a real cluster/application; without those
+//! env vars, those legs are skipped rather than failing, since they need
+//! infrastructure (or a hosted account) the other backends don't.
 
 use std::sync::Arc;
 
@@ -149,6 +151,23 @@ async fn main() -> rusty_search::Result<()> {
         }
         _ => println!(
             "--- AlgoliaBackend --- skipped (set RUSTY_SEARCH_ALGOLIA_APP_ID and RUSTY_SEARCH_ALGOLIA_API_KEY to run against a real application)\n"
+        ),
+    }
+
+    #[cfg(feature = "azure-search")]
+    match (
+        std::env::var("RUSTY_SEARCH_AZURE_SEARCH_ENDPOINT"),
+        std::env::var("RUSTY_SEARCH_AZURE_SEARCH_API_KEY"),
+    ) {
+        (Ok(endpoint), Ok(api_key)) => {
+            run_demo(
+                Arc::new(rusty_search::AzureSearchBackend::new(endpoint, api_key)),
+                "AzureSearchBackend",
+            )
+            .await?
+        }
+        _ => println!(
+            "--- AzureSearchBackend --- skipped (set RUSTY_SEARCH_AZURE_SEARCH_ENDPOINT and RUSTY_SEARCH_AZURE_SEARCH_API_KEY to run against a real service)\n"
         ),
     }
 
