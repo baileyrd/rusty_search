@@ -1,36 +1,33 @@
 # Release Notes
 
-<!--
-Two variants, pick the one that fits this repo's actual unit of change:
-
-1. No version tags yet (pre-1.0, nothing published) — track by PR instead, same way
-   AISF does it: one entry per merged PR against main, reverse chronological, each
-   linking to its PR and (where one exists) to the doc that covers the change in full
-   detail. Use "## PR #N — <summary>" headers.
-
-2. Actual version tags exist — use "## vX.Y.Z - YYYY-MM-DD" headers instead, each
-   linking to the PRs it shipped and a compare link to the previous tag. Add an
-   "### Upgrade notes" subsection under any entry with a breaking change.
-
-Either way, keep the tone AISF's file uses: bolded category tags inline in the
-bullet (**Added:** / **Changed:** / **Fixed:**), not separate subheaders per
-category — and state known limitations or deliberate scope cuts plainly instead of
-leaving them implied.
--->
-
-<One-line description of what this file tracks and how entries are ordered.>
+No version tags yet — entries are tracked one per merged PR against `main`,
+reverse chronological, each linking back to its PR.
 
 ---
 
-## PR #N — <short imperative summary of what changed>
-**YYYY-MM-DD** · [#N](<PR link>)
+## PR #1 — Build rusty_search: async, pluggable search interface for Rust
+**2026-07-21** · [#1](https://github.com/baileyrd/rusty_search/pull/1)
 
-- **Added/Changed/Fixed:** <what changed, and why — not just the diff but the
-  reasoning a reader would otherwise have to dig for>
-- <Known limitation or deliberate scope cut, if any, stated plainly>
-- <Test count, if applicable: "N new/updated unit tests; X passed, Y ignored.">
-
-## PR #N-1 — ...
-**YYYY-MM-DD** · [#N-1](<PR link>)
-
-- ...
+- **Added:** the initial `rusty_search` workspace — `rusty-search-core` (the
+  `SearchBackend` trait, `Document`, `Schema`, a composable `Query` DSL,
+  `SearchRequest`/`SearchResults`), `rusty-search-memory` (a dependency-free
+  in-memory backend), `rusty-search-tantivy` (an embedded
+  [Tantivy](https://github.com/quickwit-oss/tantivy) backend, in-memory or
+  on-disk), and the `rusty-search` facade crate gating each backend behind a
+  feature flag (`memory`, `tantivy`).
+- **Added:** repo governance scaffolding — PR/issue templates,
+  `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`,
+  `ARCHITECTURE.md` (boundary table filled in for the real
+  core/memory/tantivy/facade split), and an ADR seed.
+- Known limitation, stated plainly rather than left implied:
+  `rusty-search-tantivy`'s native sort acceleration only covers a single
+  `Sort::Field` on an `i64`/`f64` field created with `fast: true`. Sorting
+  by a `Keyword`/`Text`/`Bool`/`Date` field, or by more than one key, falls
+  back to an in-memory sort over a candidate set capped at
+  `FALLBACK_SORT_CAP` (10,000 documents) — correct up to that cap, not
+  beyond it.
+- Known limitation: `TantivyBackend::on_disk` does not reopen indices that
+  already exist on disk from a previous process — `create_index` always
+  creates fresh segments and errors if the directory already holds one.
+- 32 new unit tests + 3 doctests; all passed. `cargo clippy` and
+  `cargo fmt --check` are both clean across the workspace.
