@@ -1643,6 +1643,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 name = "rusty-search"
 version = "0.1.0"
 dependencies = [
+ "rusty-search-algolia",
  "rusty-search-core",
  "rusty-search-elasticsearch",
  "rusty-search-meilisearch",
@@ -1651,6 +1652,20 @@ dependencies = [
  "rusty-search-solr",
  "rusty-search-tantivy",
  "tokio",
+]
+
+[[package]]
+name = "rusty-search-algolia"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "reqwest 0.13.4",
+ "rusty-search-core",
+ "serde_json",
+ "tokio",
+ "uuid",
+ "wiremock",
 ]
 
 [[package]]

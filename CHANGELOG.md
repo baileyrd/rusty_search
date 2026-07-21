@@ -37,6 +37,12 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
   facade behind a new `solr` feature flag. (#9)
 - ADR-0005: Solr backend as an independent implementation rather than a
   wrapper, contrasted with ADR-0004's OpenSearch decision. (#9)
+- `rusty-search-algolia`: a `SearchBackend` for the hosted Algolia search
+  SaaS, hand-rolled over `reqwest`, wired into the `rusty-search` facade
+  behind a new `algolia` feature flag. (#10)
+- ADR-0006: Algolia backend design (hand-rolled HTTP, async task-waiting
+  making `commit()` a no-op, single-full-text-query restriction, no
+  "match everything" literal to ground `must_not` against). (#10)
 
 <!-- ## [0.1.0] - YYYY-MM-DD
 ### Added
