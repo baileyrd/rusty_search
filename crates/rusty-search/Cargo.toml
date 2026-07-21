@@ -16,6 +16,7 @@ elasticsearch = ["dep:rusty-search-elasticsearch"]
 meilisearch = ["dep:rusty-search-meilisearch"]
 opensearch = ["dep:rusty-search-opensearch"]
 solr = ["dep:rusty-search-solr"]
+algolia = ["dep:rusty-search-algolia"]
 
 [dependencies]
 rusty-search-core = { workspace = true }
@@ -25,6 +26,7 @@ rusty-search-elasticsearch = { workspace = true, optional = true }
 rusty-search-meilisearch = { workspace = true, optional = true }
 rusty-search-opensearch = { workspace = true, optional = true }
 rusty-search-solr = { workspace = true, optional = true }
+rusty-search-algolia = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

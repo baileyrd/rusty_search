@@ -37,10 +37,12 @@
 //! since OpenSearch still speaks Elasticsearch's wire protocol for
 //! everything this crate needs), the `meilisearch` feature for
 //! [`MeilisearchBackend`], a client for a remote Meilisearch instance,
-//! and/or the `solr` feature for [`SolrBackend`], a client for a remote
-//! Apache Solr instance. None are enabled by default so that depending on
-//! `rusty-search-core` alone - to define your own backend, or to write
-//! backend-agnostic application code - pulls in nothing else.
+//! the `solr` feature for [`SolrBackend`], a client for a remote Apache
+//! Solr instance, and/or the `algolia` feature for [`AlgoliaBackend`], a
+//! client for the hosted Algolia search SaaS. None are enabled by default
+//! so that depending on `rusty-search-core` alone - to define your own
+//! backend, or to write backend-agnostic application code - pulls in
+//! nothing else.
 
 pub use rusty_search_core::*;
 
@@ -61,3 +63,6 @@ pub use rusty_search_opensearch::OpenSearchBackend;
 
 #[cfg(feature = "solr")]
 pub use rusty_search_solr::SolrBackend;
+
+#[cfg(feature = "algolia")]
+pub use rusty_search_algolia::AlgoliaBackend;

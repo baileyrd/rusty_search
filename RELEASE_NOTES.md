@@ -5,6 +5,46 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #10 — Add an Algolia backend
+**2026-07-21** · [#10](https://github.com/baileyrd/rusty_search/pull/10)
+
+- **Added:** `rusty-search-algolia`, a `SearchBackend` for the hosted
+  Algolia search SaaS - hand-rolled over `reqwest` (like
+  `rusty-search-elasticsearch`/`rusty-search-solr`), since no trustworthy
+  async Algolia Rust SDK exists on crates.io (see ADR-0006). Wired into
+  the `rusty-search` facade behind a new `algolia` feature, and into the
+  `pluggable_backends` example (skipped gracefully without
+  `RUSTY_SEARCH_ALGOLIA_APP_ID`/`RUSTY_SEARCH_ALGOLIA_API_KEY` set).
+- **Added:** `Query` translation into a single free-text `query` string
+  (at most one `Query::Match`, restricted via
+  `restrictSearchableAttributes` - the same one-full-text-clause ceiling
+  as `rusty-search-meilisearch`) plus a single `filters` expression
+  string for everything else. Algolia's filter language nests
+  `AND`/`OR`/`NOT` arbitrarily in one string like Solr's Lucene syntax,
+  but - unlike Solr - has no "match everything" literal to ground a
+  negative clause against, so `must_not` wrapping a bare
+  `Query::MatchAll`/`Query::Match` is rejected the same way Meilisearch
+  rejects it.
+- **Added:** ADR-0006, documenting the hand-rolled-over-SDK choice, the
+  async task-polling write model (making `commit()` a no-op, the same
+  shape ADR-0003 established for Meilisearch), the dual write/read
+  hostname design (and the `with_hosts` constructor that makes both
+  collapsible for testing), the constant `1.0` relevance score (Algolia
+  exposes no portable single score), and the client-side fallback sort
+  reused from `rusty-search-tantivy` (Algolia's native answer to custom
+  sort is replica indices, out of scope here).
+- Known limitations, stated plainly: no native per-query field sort
+  (falls back to the same `FALLBACK_SORT_CAP`-bounded in-memory sort as
+  `rusty-search-tantivy`); no native relevance score (`Hit::score` is
+  always `1.0`, though result *order* still reflects Algolia's actual
+  ranking); `Query::Range` restricted to `I64`/`F64` fields; no
+  multi-host failover; index-exists semantics are local-registry-only,
+  same caveat as every other remote backend here.
+- 27 new unit tests (17 pure translation tests + 10 mocked-HTTP
+  integration tests); all passed alongside the existing 123 unit tests +
+  3 doctests across the workspace. `cargo clippy` and `cargo fmt --check`
+  are both clean.
+
 ## PR #9 — Add a Solr backend
 **2026-07-21** · [#9](https://github.com/baileyrd/rusty_search/pull/9)
 
