@@ -1,16 +1,18 @@
 //! Demonstrates the whole point of `rusty_search`: application code is
 //! written once against `Arc<dyn SearchBackend>`, and the concrete engine
 //! underneath - an in-memory index here, an embedded Tantivy index there, a
-//! remote Elasticsearch cluster over there - is swapped without changing a
-//! single line of `run_demo`.
+//! remote Elasticsearch or Meilisearch cluster over there - is swapped
+//! without changing a single line of `run_demo`.
 //!
 //! Run with:
 //!   cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
 //!
-//! Add `,elasticsearch` to `--features` and set `RUSTY_SEARCH_ES_URL` (e.g.
-//! `http://localhost:9200`) to also run the demo against a real cluster;
-//! without that env var the Elasticsearch leg is skipped rather than
-//! failing, since it needs infrastructure the other two backends don't.
+//! Add `,elasticsearch` and/or `,meilisearch` to `--features` and set
+//! `RUSTY_SEARCH_ES_URL` (e.g. `http://localhost:9200`) /
+//! `RUSTY_SEARCH_MEILI_URL` (e.g. `http://localhost:7700`) to also run the
+//! demo against a real cluster; without those env vars, those legs are
+//! skipped rather than failing, since they need infrastructure the other
+//! backends don't.
 
 use std::sync::Arc;
 
@@ -107,6 +109,15 @@ async fn main() -> rusty_search::Result<()> {
                 .await?
         }
         Err(_) => println!("--- ElasticsearchBackend --- skipped (set RUSTY_SEARCH_ES_URL to run against a real cluster)\n"),
+    }
+
+    #[cfg(feature = "meilisearch")]
+    match std::env::var("RUSTY_SEARCH_MEILI_URL") {
+        Ok(url) => {
+            let backend = rusty_search::MeilisearchBackend::new(url)?;
+            run_demo(Arc::new(backend), "MeilisearchBackend").await?
+        }
+        Err(_) => println!("--- MeilisearchBackend --- skipped (set RUSTY_SEARCH_MEILI_URL to run against a real instance)\n"),
     }
 
     Ok(())
