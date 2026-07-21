@@ -5,6 +5,34 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #7 — Add a Meilisearch backend
+**2026-07-21** · [#7](https://github.com/baileyrd/rusty_search/pull/7)
+
+- **Added:** `rusty-search-meilisearch`, a `SearchBackend` implementation
+  for a remote Meilisearch instance, built on the official
+  `meilisearch-sdk` crate rather than hand-rolled HTTP (a deliberate
+  departure from `rusty-search-elasticsearch`'s approach - see ADR-0003).
+  Wired into the `rusty-search` facade behind a new `meilisearch` feature,
+  and into the `pluggable_backends` example (skipped gracefully without
+  `RUSTY_SEARCH_MEILI_URL` set).
+- **Added:** ADR-0003, documenting why this backend uses the official SDK
+  instead of hand-rolled HTTP, waits on Meilisearch's async task model
+  internally (making `commit()` a no-op), and restricts `Query` trees to
+  at most one `Query::Match` clause plus a filter-expression translation
+  of everything else - Meilisearch's search API has exactly one free-text
+  query string, unlike Elasticsearch's composable query DSL.
+- Known limitation, stated plainly: a `Query` tree with more than one
+  `Query::Match`, or a `must_not` wrapping a bare `Query::MatchAll`/
+  `Query::Match`, is rejected with `SearchError::InvalidQuery` rather than
+  approximated. `Query::Range` is restricted to `I64`/`F64` fields here
+  (Meilisearch filter comparisons don't support date strings the way the
+  other backends' range queries do), and `SearchResults::total` reflects
+  Meilisearch's `estimatedTotalHits`, not a guaranteed exact count.
+- 25 new unit tests (17 pure translation tests + 8 mocked-HTTP integration
+  tests covering the task-polling lifecycle); all passed alongside the
+  existing 59 unit tests + 3 doctests across the workspace. `cargo clippy`
+  and `cargo fmt --check` are both clean.
+
 ## PR #6 — Add an Elasticsearch backend
 **2026-07-21** · [#6](https://github.com/baileyrd/rusty_search/pull/6)
 

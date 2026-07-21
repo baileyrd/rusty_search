@@ -13,12 +13,14 @@ default = []
 memory = ["dep:rusty-search-memory"]
 tantivy = ["dep:rusty-search-tantivy"]
 elasticsearch = ["dep:rusty-search-elasticsearch"]
+meilisearch = ["dep:rusty-search-meilisearch"]
 
 [dependencies]
 rusty-search-core = { workspace = true }
 rusty-search-memory = { workspace = true, optional = true }
 rusty-search-tantivy = { workspace = true, optional = true }
 rusty-search-elasticsearch = { workspace = true, optional = true }
+rusty-search-meilisearch = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

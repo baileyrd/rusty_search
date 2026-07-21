@@ -19,6 +19,12 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
   facade behind a new `elasticsearch` feature flag. (#6)
 - ADR-0002: Elasticsearch backend design (local index/field-type registry,
   client-side id generation, genuinely non-scoring `filter` clauses). (#6)
+- `rusty-search-meilisearch`: a `SearchBackend` for a remote Meilisearch
+  instance built on the official `meilisearch-sdk` crate, wired into the
+  `rusty-search` facade behind a new `meilisearch` feature flag. (#7)
+- ADR-0003: Meilisearch backend design (official SDK over hand-rolled
+  HTTP, async task-waiting making `commit()` a no-op, single-full-text-query
+  restriction). (#7)
 
 <!-- ## [0.1.0] - YYYY-MM-DD
 ### Added
