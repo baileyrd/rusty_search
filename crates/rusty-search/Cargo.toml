@@ -1,0 +1,26 @@
+[package]
+name = "rusty-search"
+description = "Async, pluggable search interface for Rust: swap search engines without changing application code"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[features]
+default = []
+memory = ["dep:rusty-search-memory"]
+tantivy = ["dep:rusty-search-tantivy"]
+
+[dependencies]
+rusty-search-core = { workspace = true }
+rusty-search-memory = { workspace = true, optional = true }
+rusty-search-tantivy = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+
+[[example]]
+name = "pluggable_backends"
+required-features = ["memory", "tantivy"]
