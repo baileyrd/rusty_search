@@ -42,7 +42,8 @@ async fn main() -> rusty_search::Result<()> {
 | [`rusty-search-elasticsearch`](crates/rusty-search-elasticsearch) | A `SearchBackend` that talks to a remote Elasticsearch cluster over HTTP. The only in-process-free backend here besides `rusty-search-opensearch` - see its module docs for what that changes. |
 | [`rusty-search-opensearch`](crates/rusty-search-opensearch) | A `SearchBackend` for a remote [OpenSearch](https://opensearch.org) cluster - a thin wrapper around `ElasticsearchBackend`, since OpenSearch still speaks Elasticsearch's wire protocol for everything this crate needs. See ADR-0004 for why it's a wrapper rather than a reimplementation. |
 | [`rusty-search-meilisearch`](crates/rusty-search-meilisearch) | A `SearchBackend` for a remote [Meilisearch](https://www.meilisearch.com) instance, via the official `meilisearch-sdk` crate. See its module docs for how its filter-expression query language and async task model shape what's representable. |
-| [`rusty-search`](crates/rusty-search) | The facade crate applications depend on. Re-exports `rusty-search-core` plus each backend behind a feature flag (`memory`, `tantivy`, `elasticsearch`, `opensearch`, `meilisearch`), mirroring how `sqlx` gates its database drivers. |
+| [`rusty-search-solr`](crates/rusty-search-solr) | A `SearchBackend` for a remote [Apache Solr](https://solr.apache.org) instance. Its classic Lucene query syntax can represent the entire `Query` DSL in one string - more than `rusty-search-meilisearch` can - while its own separate `fq` filter mechanism gives it the same genuinely non-scoring filters as Elasticsearch. |
+| [`rusty-search`](crates/rusty-search) | The facade crate applications depend on. Re-exports `rusty-search-core` plus each backend behind a feature flag (`memory`, `tantivy`, `elasticsearch`, `opensearch`, `meilisearch`, `solr`), mirroring how `sqlx` gates its database drivers. |
 
 ## Why a trait, not a struct
 
@@ -64,7 +65,7 @@ pub trait SearchBackend: Send + Sync {
 
 That means application code can hold an `Arc<dyn SearchBackend>` and swap
 the concrete engine at runtime - in-memory in tests, Tantivy, Elasticsearch,
-OpenSearch, or Meilisearch in production - exactly as you'd swap a
+OpenSearch, Meilisearch, or Solr in production - exactly as you'd swap a
 SQLAlchemy engine's connection string. See
 [`crates/rusty-search/examples/pluggable_backends.rs`](crates/rusty-search/examples/pluggable_backends.rs)
 for a runnable demo that indexes and searches the *same* documents through
@@ -72,9 +73,9 @@ each backend with identical calling code:
 
 ```sh
 cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
-# add `,elasticsearch`/`,opensearch`/`,meilisearch` and set
-# RUSTY_SEARCH_ES_URL/RUSTY_SEARCH_OS_URL/RUSTY_SEARCH_MEILI_URL to also
-# run it against a real cluster
+# add `,elasticsearch`/`,opensearch`/`,meilisearch`/`,solr` and set
+# RUSTY_SEARCH_ES_URL/RUSTY_SEARCH_OS_URL/RUSTY_SEARCH_MEILI_URL/RUSTY_SEARCH_SOLR_URL
+# to also run it against a real cluster
 ```
 
 ## The query DSL
@@ -94,28 +95,32 @@ let query = Query::match_query("body", "async search")
 Every backend translates the same `Query` tree into its own native
 representation (a Tantivy `Query`, a hand-rolled evaluator over an
 in-memory map, an Elasticsearch query DSL body, a Meilisearch filter
-expression string, ...) - not every backend can represent every `Query`
-tree equally well (see `rusty-search-meilisearch`'s module docs for the
-sharpest example: it supports at most one `Query::Match` per query, since
-Meilisearch's search API has exactly one free-text query string).
+expression string, a Solr Lucene query string plus `fq` filters, ...) -
+not every backend can represent every `Query` tree equally well.
+`rusty-search-meilisearch`'s module docs have the sharpest restriction: it
+supports at most one `Query::Match` per query, since Meilisearch's search
+API has exactly one free-text query string. `rusty-search-solr`, by
+contrast, can represent the entire `Query` DSL losslessly, since Lucene's
+query syntax supports arbitrary boolean nesting in one string.
 
 ## Adding a new backend
 
 Implement `SearchBackend` for your own type and it plugs into any
 application written against the trait - no changes to `rusty-search-core`
-or to callers required. `rusty-search-elasticsearch` and
-`rusty-search-meilisearch` are reference examples of remote/HTTP backends -
-one hand-rolled over `reqwest`, one built on an official SDK - and
-`rusty-search-opensearch` is the example of the other legitimate shape a
-backend can take: a thin wrapper reusing another backend's translation
-logic wholesale, when the underlying wire protocol really is shared.
+or to callers required. `rusty-search-elasticsearch`, `rusty-search-solr`,
+and `rusty-search-meilisearch` are reference examples of independent
+remote/HTTP backends - two hand-rolled over `reqwest`, one built on an
+official SDK - and `rusty-search-opensearch` is the example of the other
+legitimate shape a backend can take: a thin wrapper reusing another
+backend's translation logic wholesale, when the underlying wire protocol
+really is shared.
 
 ## Status
 
-This crate is a young, from-scratch project. The core interface and five
-backends (in-memory, Tantivy, Elasticsearch, OpenSearch, Meilisearch) are
-implemented and tested; see each crate's module-level docs for known
-limitations (e.g. `rusty-search-tantivy`'s sort support,
+This crate is a young, from-scratch project. The core interface and six
+backends (in-memory, Tantivy, Elasticsearch, OpenSearch, Meilisearch,
+Solr) are implemented and tested; see each crate's module-level docs for
+known limitations (e.g. `rusty-search-tantivy`'s sort support,
 `rusty-search-meilisearch`'s query restrictions). Contributions adding
 backends for other engines are welcome.
 

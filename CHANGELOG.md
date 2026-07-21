@@ -31,6 +31,12 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
   `opensearch` feature flag. (#8)
 - ADR-0004: OpenSearch backend as a thin wrapper around
   `ElasticsearchBackend` instead of an independent reimplementation. (#8)
+- `rusty-search-solr`: a `SearchBackend` for a remote Apache Solr
+  instance, an independent implementation translating `Query` into a
+  Lucene query string plus `fq` filters, wired into the `rusty-search`
+  facade behind a new `solr` feature flag. (#9)
+- ADR-0005: Solr backend as an independent implementation rather than a
+  wrapper, contrasted with ADR-0004's OpenSearch decision. (#9)
 
 <!-- ## [0.1.0] - YYYY-MM-DD
 ### Added
