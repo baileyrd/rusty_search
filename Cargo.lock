@@ -1492,6 +1492,7 @@ dependencies = [
  "rustls-platform-verifier",
  "serde",
  "serde_json",
+ "serde_urlencoded",
  "sync_wrapper",
  "tokio",
  "tokio-rustls",
@@ -1647,6 +1648,7 @@ dependencies = [
  "rusty-search-meilisearch",
  "rusty-search-memory",
  "rusty-search-opensearch",
+ "rusty-search-solr",
  "rusty-search-tantivy",
  "tokio",
 ]
@@ -1711,6 +1713,20 @@ dependencies = [
  "rusty-search-elasticsearch",
  "serde_json",
  "tokio",
+ "wiremock",
+]
+
+[[package]]
+name = "rusty-search-solr"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "reqwest 0.13.4",
+ "rusty-search-core",
+ "serde_json",
+ "tokio",
+ "uuid",
  "wiremock",
 ]
 

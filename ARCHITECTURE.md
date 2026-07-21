@@ -14,8 +14,8 @@ consumer only pulls in the engine(s) it actually uses.
 
 | Port | Adapter(s) | Notes |
 | ---- | ---------- | ----- |
-| `SearchBackend` (`rusty-search-core`) | `MemoryBackend` (`rusty-search-memory`), `TantivyBackend` (`rusty-search-tantivy`), `ElasticsearchBackend` (`rusty-search-elasticsearch`), `OpenSearchBackend` (`rusty-search-opensearch`), `MeilisearchBackend` (`rusty-search-meilisearch`) | `async-trait`-based and object-safe (`Arc<dyn SearchBackend>`) specifically so callers can swap the concrete engine at runtime, not just at compile time |
-| `Query` (DSL, not a port but worth calling out) | translated per-backend: naive whole-document evaluator (memory), Tantivy `Query`/`BooleanQuery`/`RangeQuery` (tantivy), Elasticsearch Query DSL JSON over HTTP (elasticsearch, reused as-is by opensearch), a Meilisearch filter expression string plus at most one full-text `q` (meilisearch) | callers build one `Query` tree; each backend owns its own translation (opensearch reuses elasticsearch's rather than duplicating it), and not every backend can represent every tree (meilisearch is the strictest) |
+| `SearchBackend` (`rusty-search-core`) | `MemoryBackend` (`rusty-search-memory`), `TantivyBackend` (`rusty-search-tantivy`), `ElasticsearchBackend` (`rusty-search-elasticsearch`), `OpenSearchBackend` (`rusty-search-opensearch`), `MeilisearchBackend` (`rusty-search-meilisearch`), `SolrBackend` (`rusty-search-solr`) | `async-trait`-based and object-safe (`Arc<dyn SearchBackend>`) specifically so callers can swap the concrete engine at runtime, not just at compile time |
+| `Query` (DSL, not a port but worth calling out) | translated per-backend: naive whole-document evaluator (memory), Tantivy `Query`/`BooleanQuery`/`RangeQuery` (tantivy), Elasticsearch Query DSL JSON over HTTP (elasticsearch, reused as-is by opensearch), a Meilisearch filter expression string plus at most one full-text `q` (meilisearch), a Solr Lucene query string plus `fq` filters (solr) | callers build one `Query` tree; each backend owns its own translation (opensearch reuses elasticsearch's rather than duplicating it), and not every backend can represent every tree (meilisearch is the strictest, solr the most complete) |
 
 ## Structure
 A Cargo workspace, one crate per boundary:
@@ -26,11 +26,12 @@ A Cargo workspace, one crate per boundary:
 - `rusty-search-elasticsearch` — remote adapter: a thin, hand-rolled HTTP client (`reqwest`) for an Elasticsearch cluster. Keeps a small local registry (which indices it created, their field types) instead of round-tripping to the cluster for that on every call.
 - `rusty-search-opensearch` — remote adapter: a thin wrapper around `ElasticsearchBackend`, not an independent implementation. OpenSearch still speaks Elasticsearch's wire protocol for everything this workspace needs, so this adapter reuses that translation logic entirely instead of duplicating it (see ADR-0004).
 - `rusty-search-meilisearch` — remote adapter: wraps the official `meilisearch-sdk` crate for a Meilisearch instance, rather than hand-rolling HTTP the way the Elasticsearch adapter does (see ADR-0003 for why). Keeps the same kind of local index/field-type registry as the Elasticsearch adapter, and waits on Meilisearch's async task model internally so its `SearchBackend` methods still look synchronous to callers.
-- `rusty-search` — facade crate consumers depend on; re-exports `rusty-search-core` plus each adapter behind a feature flag (`memory`, `tantivy`, `elasticsearch`, `opensearch`, `meilisearch`), so depending on core alone costs nothing extra.
+- `rusty-search-solr` — remote adapter: a thin, hand-rolled HTTP client (`reqwest`) for an Apache Solr instance, independent from the Elasticsearch adapter despite the surface similarity (see ADR-0005 for why this one isn't a wrapper the way OpenSearch's is). Keeps the same kind of local index/field-type registry, and translates `Query` into a Lucene query string plus separate `fq` filter queries.
+- `rusty-search` — facade crate consumers depend on; re-exports `rusty-search-core` plus each adapter behind a feature flag (`memory`, `tantivy`, `elasticsearch`, `opensearch`, `meilisearch`, `solr`), so depending on core alone costs nothing extra.
 
 This has not been split into separate services and shouldn't be — it's a
 library, not a deployable; "splitting" here means adding another adapter
-crate (e.g. a Solr or Algolia client), not extracting a process.
+crate (e.g. an Algolia client), not extracting a process.
 
 ## Data flow
 1. Caller builds a `Schema` and calls `backend.create_index(name, schema)`.
@@ -47,3 +48,4 @@ See [docs/adr/](./docs/adr/) for the record of individual decisions and their tr
 - `rusty-search-tantivy`'s fallback sort path (non-fast fields, multiple sort keys) is correct only up to `FALLBACK_SORT_CAP` documents — not a general-purpose distributed sort.
 - `rusty-search-meilisearch` doesn't attempt to represent every `Query` tree Meilisearch can't natively express (more than one `Query::Match`, `must_not` wrapping a bare `Query::MatchAll`/`Query::Match`) — those are rejected with `SearchError::InvalidQuery` rather than approximated.
 - `rusty-search-opensearch` doesn't implement AWS SigV4 request signing for Amazon OpenSearch Service; `OpenSearchBackend::with_client` is the escape hatch until it does.
+- `rusty-search-solr` creates cores via the Core Admin API against the `_default` configset - it doesn't support SolrCloud's Collections API, so it won't work against a cloud-mode cluster.

@@ -5,6 +5,45 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #9 — Add a Solr backend
+**2026-07-21** · [#9](https://github.com/baileyrd/rusty_search/pull/9)
+
+- **Added:** `rusty-search-solr`, a `SearchBackend` for a remote Apache
+  Solr instance - an independent implementation (hand-rolled `reqwest`,
+  like `rusty-search-elasticsearch`), not a wrapper, since Solr's REST API
+  isn't wire-compatible with Elasticsearch's the way OpenSearch's is (see
+  ADR-0005 for the contrast with ADR-0004's OpenSearch decision). Wired
+  into the `rusty-search` facade behind a new `solr` feature, and into the
+  `pluggable_backends` example (skipped gracefully without
+  `RUSTY_SEARCH_SOLR_URL` set).
+- **Added:** `Query` translation into a single Lucene query string (`q`)
+  plus separate `fq` filter queries - Solr's own genuinely non-scoring
+  filter mechanism. Because Lucene's syntax supports arbitrary boolean
+  nesting in one string, this backend can represent the *entire* `Query`
+  DSL, including cases `rusty-search-meilisearch` has to reject (more than
+  one `Query::Match`, `must_not` wrapping a bare `Query::MatchAll`).
+- **Added:** ADR-0005, documenting why this backend is independent rather
+  than a wrapper (Solr and Elasticsearch don't share a wire protocol, so
+  there's nothing to reuse), the alternatives considered (wrapping ES
+  anyway, an SDK-based approach, Solr's newer JSON Request API, SolrCloud's
+  Collections API), and the consequences (no code sharing with the ES
+  backend despite conceptual similarity; most expressive backend in the
+  workspace, not necessarily the most portable one).
+- Known limitations, stated plainly: `create_index` only supports
+  standalone Solr via the Core Admin API against the `_default`
+  configset, not SolrCloud's Collections API; `Query::Match` compiles to a
+  quoted phrase query (analyzed, not an OR-of-terms match the way
+  Elasticsearch's `match` defaults to); `Query::Range` doesn't support
+  `Keyword`/`Text`/`Bool` fields. Response parsing defensively checks for
+  an embedded `"error"` object before trusting the HTTP status code,
+  since Solr's status-code passthrough has historically been inconsistent
+  across deployments - a safe default made without a live server to
+  confirm against, tracked honestly as a judgment call.
+- 30 new unit tests (20 pure translation tests + 10 mocked-HTTP
+  integration tests); all passed alongside the existing 93 unit tests + 3
+  doctests across the workspace. `cargo clippy` and `cargo fmt --check`
+  are both clean.
+
 ## PR #8 — Add an OpenSearch backend
 **2026-07-21** · [#8](https://github.com/baileyrd/rusty_search/pull/8)
 
