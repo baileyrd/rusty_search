@@ -5,6 +5,36 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #8 — Add an OpenSearch backend
+**2026-07-21** · [#8](https://github.com/baileyrd/rusty_search/pull/8)
+
+- **Added:** `rusty-search-opensearch`, a `SearchBackend` for a remote
+  OpenSearch cluster. Rather than duplicating
+  `rusty-search-elasticsearch`'s request/response translation against an
+  effectively identical wire protocol, `OpenSearchBackend` is a thin
+  newtype wrapper delegating every method to an inner `ElasticsearchBackend`
+  - see ADR-0004 for the full reasoning. Wired into the `rusty-search`
+  facade behind a new `opensearch` feature, and into the
+  `pluggable_backends` example (skipped gracefully without
+  `RUSTY_SEARCH_OS_URL` set).
+- **Added:** ADR-0004, documenting why this backend wraps rather than
+  reimplements, the alternatives considered (a second independent
+  implementation, a type alias, no dedicated crate at all), and the
+  consequences of that choice (inherits the Elasticsearch backend's
+  limitations wholesale; would need real logic of its own if OpenSearch's
+  API ever meaningfully diverges).
+- Known limitation, stated plainly: no AWS SigV4 request signing for
+  Amazon OpenSearch Service, the most common managed deployment target.
+  `OpenSearchBackend::with_client` accepts a pre-configured
+  `reqwest::Client` as the interim escape hatch.
+- 6 new unit tests, deliberately scoped to proving the delegation itself
+  is correct (construction, request round trips, error mapping, basic
+  auth) rather than re-covering `rusty-search-elasticsearch`'s own
+  query/schema/document translation tests, which apply unchanged since
+  the code path is identical. All passed alongside the existing 87 unit
+  tests + 3 doctests across the workspace. `cargo clippy` and
+  `cargo fmt --check` are both clean.
+
 ## PR #7 — Add a Meilisearch backend
 **2026-07-21** · [#7](https://github.com/baileyrd/rusty_search/pull/7)
 

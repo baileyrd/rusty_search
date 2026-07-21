@@ -6,6 +6,7 @@ members = [
     "crates/rusty-search-tantivy",
     "crates/rusty-search-elasticsearch",
     "crates/rusty-search-meilisearch",
+    "crates/rusty-search-opensearch",
     "crates/rusty-search",
 ]
 
@@ -23,6 +24,7 @@ rusty-search-memory = { path = "crates/rusty-search-memory", version = "0.1.0" }
 rusty-search-tantivy = { path = "crates/rusty-search-tantivy", version = "0.1.0" }
 rusty-search-elasticsearch = { path = "crates/rusty-search-elasticsearch", version = "0.1.0" }
 rusty-search-meilisearch = { path = "crates/rusty-search-meilisearch", version = "0.1.0" }
+rusty-search-opensearch = { path = "crates/rusty-search-opensearch", version = "0.1.0" }
 
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }

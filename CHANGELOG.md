@@ -25,6 +25,12 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
 - ADR-0003: Meilisearch backend design (official SDK over hand-rolled
   HTTP, async task-waiting making `commit()` a no-op, single-full-text-query
   restriction). (#7)
+- `rusty-search-opensearch`: a `SearchBackend` for a remote OpenSearch
+  cluster, wrapping `ElasticsearchBackend` rather than reimplementing its
+  translation logic, wired into the `rusty-search` facade behind a new
+  `opensearch` feature flag. (#8)
+- ADR-0004: OpenSearch backend as a thin wrapper around
+  `ElasticsearchBackend` instead of an independent reimplementation. (#8)
 
 <!-- ## [0.1.0] - YYYY-MM-DD
 ### Added
