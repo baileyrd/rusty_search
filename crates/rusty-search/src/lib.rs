@@ -38,11 +38,12 @@
 //! everything this crate needs), the `meilisearch` feature for
 //! [`MeilisearchBackend`], a client for a remote Meilisearch instance,
 //! the `solr` feature for [`SolrBackend`], a client for a remote Apache
-//! Solr instance, and/or the `algolia` feature for [`AlgoliaBackend`], a
-//! client for the hosted Algolia search SaaS. None are enabled by default
-//! so that depending on `rusty-search-core` alone - to define your own
-//! backend, or to write backend-agnostic application code - pulls in
-//! nothing else.
+//! Solr instance, the `algolia` feature for [`AlgoliaBackend`], a client
+//! for the hosted Algolia search SaaS, and/or the `azure-search` feature
+//! for [`AzureSearchBackend`], a client for the hosted Azure AI Search
+//! service. None are enabled by default so that depending on
+//! `rusty-search-core` alone - to define your own backend, or to write
+//! backend-agnostic application code - pulls in nothing else.
 
 pub use rusty_search_core::*;
 
@@ -66,3 +67,6 @@ pub use rusty_search_solr::SolrBackend;
 
 #[cfg(feature = "algolia")]
 pub use rusty_search_algolia::AlgoliaBackend;
+
+#[cfg(feature = "azure-search")]
+pub use rusty_search_azure_search::AzureSearchBackend;

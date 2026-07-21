@@ -5,6 +5,51 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #11 — Add an Azure AI Search backend
+**2026-07-21** · [#11](https://github.com/baileyrd/rusty_search/pull/11)
+
+- **Added:** `rusty-search-azure-search`, a `SearchBackend` for the hosted
+  Azure AI Search service - hand-rolled over `reqwest` (like
+  `rusty-search-elasticsearch`/`rusty-search-solr`/`rusty-search-algolia`),
+  since no trustworthy async Azure AI Search Rust SDK exists on crates.io
+  (see ADR-0007). Wired into the `rusty-search` facade behind a new
+  `azure-search` feature, and into the `pluggable_backends` example
+  (skipped gracefully without
+  `RUSTY_SEARCH_AZURE_SEARCH_ENDPOINT`/`RUSTY_SEARCH_AZURE_SEARCH_API_KEY`
+  set).
+- **Added:** `Query` translation split across Azure's two independent
+  query grammars in one request - a full-Lucene-syntax `search` string
+  (`queryType: "full"`, as expressive as Solr's `q`: more than one
+  `Query::Match`, `must_not` wrapping `Query::Match`, using the same
+  grounding trick ADR-0005 established for Solr) plus a genuinely separate
+  OData `$filter` for `Query::Bool::filter` (which rejects `Query::Match`
+  - OData has no full-text primitive - but *does* support `must_not`
+  wrapping a bare `Query::MatchAll` via OData's real `true`/`false`
+  literals, a narrower boundary than Solr's full completeness but broader
+  than Meilisearch/Algolia's).
+- **Added:** `FieldOptions::fast` now does something in a remote backend
+  for the first time - it maps onto Azure's `sortable` attribute, which
+  (like a Tantivy fast field) must be declared at index-creation time
+  before native `$orderby` sorting works. A `SearchRequest` sorting by a
+  non-sortable field falls back to the same `FALLBACK_SORT_CAP`-bounded
+  in-memory sort `rusty-search-tantivy`/`rusty-search-algolia` already
+  use.
+- **Added:** ADR-0007, documenting the hand-rolled-over-SDK choice, the
+  two-grammar query design and its exact completeness boundary, the
+  `sortable`/fast-field parallel, and why `commit()` is a no-op here for a
+  different reason than Meilisearch/Algolia's (writes are synchronous
+  with nothing to poll; Azure simply has no refresh/commit concept at
+  all).
+- Known limitations, stated plainly: the mandatory key field is always
+  named `"id"` and Azure's character restrictions on key values aren't
+  validated client-side; `Query::Range` is restricted to
+  `I64`/`F64`/`Date` fields; no Azure Active Directory/managed-identity
+  auth, only `api-key`.
+- 41 new unit tests (28 pure translation tests + 13 mocked-HTTP
+  integration tests); all passed alongside the existing 150 unit tests +
+  3 doctests across the workspace. `cargo clippy` and `cargo fmt --check`
+  are both clean.
+
 ## PR #10 — Add an Algolia backend
 **2026-07-21** · [#10](https://github.com/baileyrd/rusty_search/pull/10)
 
