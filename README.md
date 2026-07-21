@@ -144,6 +144,35 @@ sort or relevance score, `rusty-search-azure-search`'s fast-field-like
 sortable requirement). Contributions adding backends for other engines are
 welcome.
 
+### Planned backends
+
+No firm commitments or timelines - candidates being considered, roughly in
+order of fit:
+
+- **[Typesense](https://typesense.org)** - open-source, REST API in the
+  Algolia/Meilisearch mold (a single query string plus a filter
+  expression); likely the most direct backend to add next.
+- **[Quickwit](https://quickwit.io)** - a distributed search engine built
+  directly on Tantivy, making it the most architecturally fitting
+  addition: the remote counterpart to the embedded engine
+  `rusty-search-tantivy` already wraps.
+- **[Manticore Search](https://manticoresearch.com)** - a Sphinx-descended
+  engine with an Elasticsearch/Solr-like REST API.
+- **[Redis/RediSearch](https://redis.io/docs/latest/develop/interact/search-and-query/)** -
+  in-memory, widely deployed, with its own query-string DSL.
+- **SQLite FTS5** - genuinely embedded like `rusty-search-tantivy`, but via
+  SQL virtual tables rather than an inverted-index library; would make the
+  "point it at SQLite" comparison above literal rather than a metaphor.
+- **A managed enterprise search SaaS** (e.g. Amazon Kendra, Google Vertex
+  AI Search) - a different shape than `rusty-search-elasticsearch`/
+  `rusty-search-opensearch`'s self-hosted-cluster model, closer to
+  `rusty-search-algolia`/`rusty-search-azure-search`'s hosted-service one.
+- **Vector/hybrid search** (e.g. Qdrant, Weaviate, Pinecone, Milvus) - a
+  bigger undertaking than the rest of this list: none of them fit the
+  current `Query` DSL (term/match/range/bool over structured fields), so
+  adding one first means deciding whether `Query` grows a
+  vector-similarity variant at all, not just writing a new adapter crate.
+
 ## Project docs
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries, structure, data flow, non-goals.

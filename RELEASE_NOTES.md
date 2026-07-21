@@ -5,6 +5,23 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #13 — Add a "Planned backends" list to README
+**2026-07-21** · [#13](https://github.com/baileyrd/rusty_search/pull/13)
+
+- **Added:** a "Planned backends" subsection under README's Status,
+  listing candidate engines for future adapter crates, roughly in order
+  of fit: Typesense and Quickwit as the strongest next picks (Typesense
+  for its Algolia/Meilisearch-shaped REST API, Quickwit for being the
+  distributed counterpart to the Tantivy engine `rusty-search-tantivy`
+  already embeds), followed by Manticore Search, Redis/RediSearch, SQLite
+  FTS5, and a managed enterprise search SaaS (Kendra/Vertex AI Search).
+  Vector/hybrid search engines (Qdrant, Weaviate, Pinecone, Milvus) are
+  flagged separately as a bigger undertaking, since none fit the current
+  `Query` DSL without first deciding whether it grows a
+  vector-similarity variant.
+- No code changes - this is a planning list, not a commitment or a
+  timeline.
+
 ## PR #12 — Add a CI workflow
 **2026-07-21** · [#12](https://github.com/baileyrd/rusty_search/pull/12)
 
