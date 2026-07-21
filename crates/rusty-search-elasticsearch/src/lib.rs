@@ -1,7 +1,8 @@
 //! A [`SearchBackend`] implementation backed by a remote
-//! [Elasticsearch](https://www.elastic.co/elasticsearch)-compatible cluster
-//! (Elasticsearch or OpenSearch both speak this REST API), talked to over
-//! HTTP via [`reqwest`].
+//! [Elasticsearch](https://www.elastic.co/elasticsearch) cluster, talked
+//! to over HTTP via [`reqwest`]. (OpenSearch speaks this same wire
+//! protocol too - see `rusty-search-opensearch`, which wraps this crate
+//! rather than reimplementing it.)
 //!
 //! Unlike `rusty-search-memory`/`rusty-search-tantivy`, this backend has no
 //! in-process index of its own - `ElasticsearchBackend` is a thin client.

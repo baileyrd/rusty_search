@@ -1,18 +1,18 @@
 //! Demonstrates the whole point of `rusty_search`: application code is
 //! written once against `Arc<dyn SearchBackend>`, and the concrete engine
 //! underneath - an in-memory index here, an embedded Tantivy index there, a
-//! remote Elasticsearch or Meilisearch cluster over there - is swapped
-//! without changing a single line of `run_demo`.
+//! remote Elasticsearch, OpenSearch, or Meilisearch cluster over there - is
+//! swapped without changing a single line of `run_demo`.
 //!
 //! Run with:
 //!   cargo run -p rusty-search --example pluggable_backends --features memory,tantivy
 //!
-//! Add `,elasticsearch` and/or `,meilisearch` to `--features` and set
-//! `RUSTY_SEARCH_ES_URL` (e.g. `http://localhost:9200`) /
-//! `RUSTY_SEARCH_MEILI_URL` (e.g. `http://localhost:7700`) to also run the
-//! demo against a real cluster; without those env vars, those legs are
-//! skipped rather than failing, since they need infrastructure the other
-//! backends don't.
+//! Add `,elasticsearch`/`,opensearch`/`,meilisearch` to `--features` and set
+//! `RUSTY_SEARCH_ES_URL` / `RUSTY_SEARCH_OS_URL` (both e.g.
+//! `http://localhost:9200`) / `RUSTY_SEARCH_MEILI_URL` (e.g.
+//! `http://localhost:7700`) to also run the demo against a real cluster;
+//! without those env vars, those legs are skipped rather than failing,
+//! since they need infrastructure the other backends don't.
 
 use std::sync::Arc;
 
@@ -109,6 +109,14 @@ async fn main() -> rusty_search::Result<()> {
                 .await?
         }
         Err(_) => println!("--- ElasticsearchBackend --- skipped (set RUSTY_SEARCH_ES_URL to run against a real cluster)\n"),
+    }
+
+    #[cfg(feature = "opensearch")]
+    match std::env::var("RUSTY_SEARCH_OS_URL") {
+        Ok(url) => {
+            run_demo(Arc::new(rusty_search::OpenSearchBackend::new(url)), "OpenSearchBackend").await?
+        }
+        Err(_) => println!("--- OpenSearchBackend --- skipped (set RUSTY_SEARCH_OS_URL to run against a real cluster)\n"),
     }
 
     #[cfg(feature = "meilisearch")]

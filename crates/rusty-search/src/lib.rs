@@ -32,7 +32,10 @@
 //! (a great default for tests), the `tantivy` feature for the embedded,
 //! real full-text-search [`TantivyBackend`], the `elasticsearch` feature
 //! for [`ElasticsearchBackend`], a thin HTTP client for a remote
-//! Elasticsearch/OpenSearch cluster, and/or the `meilisearch` feature for
+//! Elasticsearch cluster, the `opensearch` feature for
+//! [`OpenSearchBackend`] (a thin wrapper around `ElasticsearchBackend`,
+//! since OpenSearch still speaks Elasticsearch's wire protocol for
+//! everything this crate needs), and/or the `meilisearch` feature for
 //! [`MeilisearchBackend`], a client for a remote Meilisearch instance.
 //! None are enabled by default so that depending on `rusty-search-core`
 //! alone - to define your own backend, or to write backend-agnostic
@@ -51,3 +54,6 @@ pub use rusty_search_elasticsearch::ElasticsearchBackend;
 
 #[cfg(feature = "meilisearch")]
 pub use rusty_search_meilisearch::MeilisearchBackend;
+
+#[cfg(feature = "opensearch")]
+pub use rusty_search_opensearch::OpenSearchBackend;
