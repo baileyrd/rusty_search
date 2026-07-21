@@ -5,6 +5,23 @@ reverse chronological, each linking back to its PR.
 
 ---
 
+## PR #12 — Add a CI workflow
+**2026-07-21** · [#12](https://github.com/baileyrd/rusty_search/pull/12)
+
+- **Added:** `.github/workflows/ci-rust.yml`, running `cargo fmt --all --
+  check`, `cargo clippy --all-targets --all-features -- -D warnings`, and
+  `cargo test --all-features` on every PR and on pushes to `main`. Applied
+  via the `repo-config` skill's audit, which flagged this as the one gap
+  left in an otherwise-complete governance-file set (10/10): the repo's
+  "verify before committing" habit (`fmt`/`clippy`/`test` run by hand
+  before every backend PR so far) had nothing enforcing it automatically.
+- Known limitation, stated plainly: this is a single-job gate (format +
+  lint + test), not a version/OS matrix or a publish pipeline - adequate
+  for an internal repo at this stage, not a public-launch CI setup.
+- For this check to actually gate merges, it still needs to be added as a
+  required status check under branch protection - a manual follow-up,
+  not something this PR can configure itself.
+
 ## PR #11 — Add an Azure AI Search backend
 **2026-07-21** · [#11](https://github.com/baileyrd/rusty_search/pull/11)
 

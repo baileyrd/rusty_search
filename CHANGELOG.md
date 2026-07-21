@@ -5,6 +5,9 @@ Format: Added / Changed / Deprecated / Removed / Fixed / Security, newest first.
 
 ## [Unreleased]
 ### Added
+- CI workflow (`.github/workflows/ci-rust.yml`): `cargo fmt --check`,
+  `cargo clippy --all-targets --all-features -- -D warnings`, and
+  `cargo test --all-features` on every PR and push to `main`. (#12)
 - Initial `rusty_search` workspace: `rusty-search-core` (the `SearchBackend`
   trait, `Document`, `Schema`, a composable `Query` DSL,
   `SearchRequest`/`SearchResults`), `rusty-search-memory` (dependency-free
