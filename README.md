@@ -1,5 +1,11 @@
 # rusty_search
 
+> **This repository has moved.** `rusty_search` now lives at
+> [`crates/rusty_search`](https://github.com/Rusty-Mill/rusty_mill/tree/main/crates/rusty_search)
+> in the [`rusty_mill`](https://github.com/Rusty-Mill/rusty_mill) monorepo, with full commit
+> history preserved. This repository is kept for historical reference and is no longer
+> developed; please open issues and pull requests against `rusty_mill` instead.
+
 An async, pluggable search interface for Rust. Application code is written
 once against a standard `SearchBackend` trait; the concrete search engine
 underneath - an in-memory index, an embedded [Tantivy](https://github.com/quickwit-oss/tantivy)
